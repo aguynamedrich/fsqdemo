@@ -10,3 +10,6 @@
 # Intellij
 .idea
 *.iml
+
+/app/src/debug/*
+/app/src/release/*
