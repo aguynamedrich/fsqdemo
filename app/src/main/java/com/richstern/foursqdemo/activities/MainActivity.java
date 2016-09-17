@@ -21,10 +21,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.richstern.foursqdemo.R;
-import com.richstern.foursqdemo.model.Venue;
-import com.richstern.foursqdemo.model.VenueItem;
+import com.richstern.foursqdemo.model.VenuesResponse;
 import com.richstern.foursqdemo.model.serializers.VenuesDeserializer;
 import com.richstern.foursqdemo.net.FourSquareService;
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
@@ -33,14 +31,10 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.lang.reflect.Type;
-import java.util.List;
-
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends RxAppCompatActivity implements
@@ -85,9 +79,8 @@ public class MainActivity extends RxAppCompatActivity implements
     }
 
     private void initService() {
-        Type venueItemsTypeToken = new TypeToken<List<VenueItem>>() {}.getType();
         Gson gson = new GsonBuilder()
-            .registerTypeAdapter(venueItemsTypeToken, new VenuesDeserializer())
+            .registerTypeAdapter(VenuesResponse.class, new VenuesDeserializer())
             .create();
 
         RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
@@ -146,8 +139,9 @@ public class MainActivity extends RxAppCompatActivity implements
         String date = FSQ_DATE_FORMAT.print(new DateTime());
         foursquareService.getVenues(latLong, CLIENT_ID, CLIENT_SECRET, date)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(venues -> {
-                Toast.makeText(this, "Venues: " + venues.size(), Toast.LENGTH_SHORT).show();
+            .subscribe(response -> {
+                Toast.makeText(this, "Venues: " + response.getVenues().size(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Venues: " + response.getBounds().toString(), Toast.LENGTH_SHORT).show();
             });
     }
 

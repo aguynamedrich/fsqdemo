@@ -1,8 +1,6 @@
 package com.richstern.foursqdemo.net;
 
-import com.richstern.foursqdemo.model.VenueItem;
-
-import java.util.List;
+import com.richstern.foursqdemo.model.VenuesResponse;
 
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -11,7 +9,7 @@ import rx.Observable;
 public interface FourSquareService {
 
     @GET("venues/explore")
-    Observable<List<VenueItem>> getVenues(
+    Observable<VenuesResponse> getVenues(
         @Query("ll") String latLong,
         @Query("client_id") String clientId,
         @Query("client_secret") String clientSecret,
