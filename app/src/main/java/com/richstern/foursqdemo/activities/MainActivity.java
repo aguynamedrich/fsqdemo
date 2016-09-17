@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -18,13 +19,24 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.richstern.foursqdemo.R;
+import com.richstern.foursqdemo.model.Venue;
+import com.richstern.foursqdemo.model.VenueItem;
+import com.richstern.foursqdemo.model.serializers.VenuesDeserializer;
 import com.richstern.foursqdemo.net.FourSquareService;
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends RxAppCompatActivity implements
@@ -38,6 +50,8 @@ public class MainActivity extends RxAppCompatActivity implements
     };
 
     private static final String FOURSQUARE_BASE_URL = "https://api.foursquare.com/v2/";
+    private static final String CLIENT_ID = "KB45V00TQB1PCVWOWRWQP3VPYAAB15BEG5VCZVGA3LADGA4B";
+    private static final String CLIENT_SECRET = "J3R4VAADPG4N4IATDCA2NVOU1Q0FQ5LQ0ZS3TBNTFM2DVKFT";
 
     private GoogleMap map;
     private GoogleApiClient googleApiClient;
@@ -66,12 +80,17 @@ public class MainActivity extends RxAppCompatActivity implements
     }
 
     private void initService() {
+        Type venueItemsTypeToken = new TypeToken<List<VenueItem>>() {}.getType();
+        Gson gson = new GsonBuilder()
+            .registerTypeAdapter(venueItemsTypeToken, new VenuesDeserializer())
+            .create();
+
         RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
             .createWithScheduler(Schedulers.io());
 
         Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(FOURSQUARE_BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(rxAdapter)
             .build();
 
@@ -117,6 +136,13 @@ public class MainActivity extends RxAppCompatActivity implements
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(position, 11);
         map.moveCamera(cameraUpdate);
         map.addMarker(new MarkerOptions().position(position));
+
+        String latLong = String.format("%f,%f", location.getLatitude(), location.getLongitude());
+        foursquareService.getVenues(latLong, CLIENT_ID, CLIENT_SECRET)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(venues -> {
+                Toast.makeText(this, "Venues: " + venues.size(), Toast.LENGTH_SHORT).show();
+            });
     }
 
     @Override
