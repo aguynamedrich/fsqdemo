@@ -19,20 +19,29 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.richstern.foursqdemo.R;
+import com.richstern.foursqdemo.net.FourSquareService;
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
+
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends RxAppCompatActivity implements
     OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
     GoogleApiClient.OnConnectionFailedListener {
-
-    private GoogleMap map;
-    private GoogleApiClient googleApiClient;
 
     private static final int PERM_REQUEST_CODE_LOCATION = 0;
     private static final String[] LOCATION_PERMISSIONS = new String[] {
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.ACCESS_FINE_LOCATION
     };
+
+    private static final String FOURSQUARE_BASE_URL = "https://api.foursquare.com/v2/";
+
+    private GoogleMap map;
+    private GoogleApiClient googleApiClient;
+    private FourSquareService foursquareService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +61,21 @@ public class MainActivity extends RxAppCompatActivity implements
                 .addApi(LocationServices.API)
                 .build();
         }
+
+        initService();
+    }
+
+    private void initService() {
+        RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
+            .createWithScheduler(Schedulers.io());
+
+        Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl(FOURSQUARE_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(rxAdapter)
+            .build();
+
+        foursquareService = retrofit.create(FourSquareService.class);
     }
 
     @Override
