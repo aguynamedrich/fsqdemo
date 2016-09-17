@@ -19,6 +19,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -34,6 +35,9 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -42,7 +46,7 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends RxAppCompatActivity implements
     OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
-    GoogleApiClient.OnConnectionFailedListener {
+    GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnInfoWindowClickListener {
 
     private static final int PERM_REQUEST_CODE_LOCATION = 0;
     private static final String[] LOCATION_PERMISSIONS = new String[] {
@@ -58,6 +62,7 @@ public class MainActivity extends RxAppCompatActivity implements
     private GoogleMap map;
     private GoogleApiClient googleApiClient;
     private FourSquareService foursquareService;
+    private Map<Marker, Venue> markers = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +118,7 @@ public class MainActivity extends RxAppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
+        map.setOnInfoWindowClickListener(this);
     }
 
     @Override
@@ -149,15 +155,17 @@ public class MainActivity extends RxAppCompatActivity implements
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(response.getBounds(), 32);
         map.animateCamera(cameraUpdate);
 
+        markers.clear();
         for (VenueItem item : response.getVenues()) {
             Venue venue = item.getVenue();
             if (venue.getPosition() != null) {
-                map.addMarker(
+                Marker marker = map.addMarker(
                     new MarkerOptions()
                         .position(venue.getPosition())
                         .title(venue.getName())
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                 );
+                markers.put(marker, venue);
             }
         }
     }
@@ -179,5 +187,11 @@ public class MainActivity extends RxAppCompatActivity implements
                 requestLocation();
             }
         }
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        Venue venue = markers.get(marker);
+        Toast.makeText(this, venue.getName(), Toast.LENGTH_SHORT).show();
     }
 }
