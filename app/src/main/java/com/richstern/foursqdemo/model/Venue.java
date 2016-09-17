@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 public class Venue {
 
     @SerializedName(SerializedNames.ID)
-    private int id;
+    private String id;
 
     @SerializedName(SerializedNames.NAME)
     private String name;

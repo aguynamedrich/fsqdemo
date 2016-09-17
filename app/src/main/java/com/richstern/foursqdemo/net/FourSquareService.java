@@ -1,6 +1,6 @@
 package com.richstern.foursqdemo.net;
 
-import com.richstern.foursqdemo.model.Venue;
+import com.richstern.foursqdemo.model.VenueItem;
 
 import java.util.List;
 
@@ -11,9 +11,10 @@ import rx.Observable;
 public interface FourSquareService {
 
     @GET("venues/explore")
-    Observable<List<Venue>> getVenues(
+    Observable<List<VenueItem>> getVenues(
         @Query("ll") String latLong,
         @Query("client_id") String clientId,
-        @Query("client_secret") String clientSecret);
+        @Query("client_secret") String clientSecret,
+        @Query("v") String date);
 
 }

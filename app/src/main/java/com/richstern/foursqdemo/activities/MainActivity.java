@@ -29,6 +29,10 @@ import com.richstern.foursqdemo.model.serializers.VenuesDeserializer;
 import com.richstern.foursqdemo.net.FourSquareService;
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -52,6 +56,7 @@ public class MainActivity extends RxAppCompatActivity implements
     private static final String FOURSQUARE_BASE_URL = "https://api.foursquare.com/v2/";
     private static final String CLIENT_ID = "KB45V00TQB1PCVWOWRWQP3VPYAAB15BEG5VCZVGA3LADGA4B";
     private static final String CLIENT_SECRET = "J3R4VAADPG4N4IATDCA2NVOU1Q0FQ5LQ0ZS3TBNTFM2DVKFT";
+    private static final DateTimeFormatter FSQ_DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
 
     private GoogleMap map;
     private GoogleApiClient googleApiClient;
@@ -138,7 +143,8 @@ public class MainActivity extends RxAppCompatActivity implements
         map.addMarker(new MarkerOptions().position(position));
 
         String latLong = String.format("%f,%f", location.getLatitude(), location.getLongitude());
-        foursquareService.getVenues(latLong, CLIENT_ID, CLIENT_SECRET)
+        String date = FSQ_DATE_FORMAT.print(new DateTime());
+        foursquareService.getVenues(latLong, CLIENT_ID, CLIENT_SECRET, date)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(venues -> {
                 Toast.makeText(this, "Venues: " + venues.size(), Toast.LENGTH_SHORT).show();
