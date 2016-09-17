@@ -147,6 +147,7 @@ public class MainActivity extends RxAppCompatActivity implements
         String latLong = String.format("%f,%f", location.getLatitude(), location.getLongitude());
         String date = FSQ_DATE_FORMAT.print(new DateTime());
         foursquareService.getVenues(latLong, CLIENT_ID, CLIENT_SECRET, date)
+            .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(this::processVenusResponse);
     }
