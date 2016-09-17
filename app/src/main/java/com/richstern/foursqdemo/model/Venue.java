@@ -21,6 +21,10 @@ public class Venue {
         return null;
     }
 
+    public String getName() {
+        return name;
+    }
+
     private class SerializedNames {
         public static final String ID = "id";
         public static final String NAME = "name";

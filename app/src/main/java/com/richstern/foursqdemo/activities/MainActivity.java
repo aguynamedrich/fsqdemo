@@ -17,6 +17,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
@@ -151,7 +152,12 @@ public class MainActivity extends RxAppCompatActivity implements
         for (VenueItem item : response.getVenues()) {
             Venue venue = item.getVenue();
             if (venue.getPosition() != null) {
-                map.addMarker(new MarkerOptions().position(venue.getPosition()));
+                map.addMarker(
+                    new MarkerOptions()
+                        .position(venue.getPosition())
+                        .title(venue.getName())
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                );
             }
         }
     }
