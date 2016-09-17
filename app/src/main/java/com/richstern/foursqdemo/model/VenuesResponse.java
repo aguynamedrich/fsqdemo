@@ -7,14 +7,14 @@ import java.util.List;
 public class VenuesResponse {
 
     private LatLngBounds bounds;
-    private List<Venue> venues;
+    private List<VenueItem> venues;
 
-    public VenuesResponse(LatLngBounds bounds, List<Venue> venues) {
+    public VenuesResponse(LatLngBounds bounds, List<VenueItem> venues) {
         this.bounds = bounds;
         this.venues = venues;
     }
 
-    public List<Venue> getVenues() {
+    public List<VenueItem> getVenues() {
         return venues;
     }
 

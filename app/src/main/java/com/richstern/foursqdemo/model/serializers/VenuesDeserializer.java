@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.richstern.foursqdemo.model.Venue;
+import com.richstern.foursqdemo.model.VenueItem;
 import com.richstern.foursqdemo.model.VenuesResponse;
 
 import java.lang.reflect.Type;
@@ -41,8 +42,8 @@ public class VenuesDeserializer implements JsonDeserializer<VenuesResponse> {
         JsonArray groups = response.get("groups").getAsJsonArray();
         JsonObject group1 = groups.get(0).getAsJsonObject();
         JsonElement items = group1.get("items");
-        Type venuesTypeToken = new TypeToken<List<Venue>>() {}.getType();
-        List<Venue> venues = gson.fromJson(items, venuesTypeToken);
+        Type venuesTypeToken = new TypeToken<List<VenueItem>>() {}.getType();
+        List<VenueItem> venues = gson.fromJson(items, venuesTypeToken);
 
         return new VenuesResponse(bounds, venues);
     }

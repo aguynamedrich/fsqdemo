@@ -22,6 +22,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.richstern.foursqdemo.R;
+import com.richstern.foursqdemo.model.Venue;
+import com.richstern.foursqdemo.model.VenueItem;
 import com.richstern.foursqdemo.model.VenuesResponse;
 import com.richstern.foursqdemo.model.serializers.VenuesDeserializer;
 import com.richstern.foursqdemo.net.FourSquareService;
@@ -139,10 +141,19 @@ public class MainActivity extends RxAppCompatActivity implements
         String date = FSQ_DATE_FORMAT.print(new DateTime());
         foursquareService.getVenues(latLong, CLIENT_ID, CLIENT_SECRET, date)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(response -> {
-                Toast.makeText(this, "Venues: " + response.getVenues().size(), Toast.LENGTH_SHORT).show();
-                Toast.makeText(this, "Venues: " + response.getBounds().toString(), Toast.LENGTH_SHORT).show();
-            });
+            .subscribe(this::processVenusResponse);
+    }
+
+    private void processVenusResponse(VenuesResponse response) {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(response.getBounds(), 32);
+        map.animateCamera(cameraUpdate);
+
+        for (VenueItem item : response.getVenues()) {
+            Venue venue = item.getVenue();
+            if (venue.getPosition() != null) {
+                map.addMarker(new MarkerOptions().position(venue.getPosition()));
+            }
+        }
     }
 
     @Override
